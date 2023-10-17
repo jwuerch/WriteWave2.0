@@ -62,7 +62,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     new_sheet.add_worksheet(title='Page Structure', rows="100", cols="20")
 
     # Update titles in the second row of 'SERP Data'
-    worksheet.update('A2', 'Search Result')
+    worksheet.update('A2', '#')
     worksheet.update('B2', 'Search Result')
     worksheet.update('C2', 'SEO Title')
     worksheet.update('D2', 'Meta Description')
