@@ -107,15 +107,18 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Check if 'people_also_ask' is in the results
     if 'related_questions' in results:
-        # Extract the People Also Ask questions
+        # Extract the People Also Ask questions and answers
         pas_questions = [pas['question'] for pas in results['related_questions']]
+        pas_answers = [pas.get('snippet') for pas in results['related_questions']]  # Use get method here
 
-        # Get the index of 'People Also Ask' column
+        # Get the index of 'People Also Ask' and 'Answer' columns
         people_also_ask_col_index = serp_header_row.index('People Also Ask')
+        answer_col_index = serp_header_row.index('Answer')
 
-        # Update the 'People Also Ask' column with the questions
-        for j, question in enumerate(pas_questions, start=3):
+        # Update the 'People Also Ask' and 'Answer' columns with the questions and answers
+        for j, (question, answer) in enumerate(zip(pas_questions, pas_answers), start=3):
             serp_worksheet.update_cell(j, people_also_ask_col_index + 1, question)
+            serp_worksheet.update_cell(j, answer_col_index + 1, answer)
 
     # Check if 'answer_box' is in the results
     if 'answer_box' in results:
