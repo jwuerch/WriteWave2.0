@@ -92,7 +92,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 },
                 "fields": "pixelSize"
             }
-        } for i, title in enumerate(['Search Result', 'SEO Title', 'Meta Description', 'PAS', 'Featured Snippet'])
+        } for i, title in enumerate(['Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Featured Snippet'])
     ]
     new_sheet.batch_update({"requests": requests})
 
@@ -112,6 +112,17 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         }
     }]
     new_sheet.batch_update({"requests": requests})
+    # Get the total number of rows and columns in the worksheet
+    num_rows = worksheet.row_count
+    num_cols = worksheet.col_count
+
+    # Create a CellFormat object with text wrapping set to 'CLIP'
+    fmt = cellFormat(
+        wrapStrategy='CLIP'
+    )
+
+    # Apply the formatting to all cells in the worksheet
+    format_cell_range(worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
 
     # Get the URL of the new Google Sheet
     new_sheet_url = f"https://docs.google.com/spreadsheets/d/{new_sheet.id}"

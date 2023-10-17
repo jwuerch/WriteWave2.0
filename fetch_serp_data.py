@@ -96,10 +96,10 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
             for j, question in enumerate(pas_questions, start=3):
                 serp_worksheet.update_cell(j, people_also_ask_col_index + 1, question)
 
-        # Check if 'featured_snippet' is in the results
-        if 'featured_snippet' in results:
-            # Extract the Featured Snippet
-            featured_snippet = results['featured_snippet']['snippet']
+        # Check if 'answer_box' is in the results
+        if 'answer_box' in results:
+            # Extract the answer from 'answer_box'
+            featured_snippet = results['answer_box']['snippet']
 
             # Get the index of 'Featured Snippet' column
             featured_snippet_col_index = serp_header_row.index('Featured Snippet')
