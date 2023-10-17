@@ -63,7 +63,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                'alt Tag Count',
                'b Tag Count', 'strong Tag Count', 'i Tag Count', 'em Tag Count', 'u Tag Count', 'ol Tag Count',
                'ol Item Count', 'ul Tag Count', 'ul Item Count', 'table Tag Count', 'form Tag Count',
-               'iframe Tag Count']
+               'iframe Tag Count', 'TOC Count', 'FAQs Count']
 
     # For each result column, scrape the web page and update the sheet
     for j in range(2, 12):  # Assuming there are 10 result columns starting from column 2
@@ -86,6 +86,10 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 elif factor in ['ol Item Count', 'ul Item Count']:
                     tag = factor.split(' ')[0].lower()
                     count = sum(len(ol.find_all('li')) for ol in soup.find_all(tag))
+                elif factor == 'TOC Count':
+                    count = int(any(a['href'].startswith('#') and len(a['href']) > 1 for tag in soup.find_all(['ol', 'ul']) for a in tag.find_all('a', href=True)))
+                elif factor == 'FAQs Count':
+                    count = int('faq' in soup.get_text().lower() or 'faqs' in soup.get_text().lower() or 'frequently asked questions' in soup.get_text().lower())
                 else:
                     tag = factor.split(' ')[0].lower()
                     count = len(soup.find_all(tag))
