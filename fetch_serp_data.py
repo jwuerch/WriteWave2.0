@@ -27,13 +27,13 @@ all_values = sheet.get_all_values()
 # Get the index of 'Keyword' and 'Datasheet' columns
 header_row = all_values[1]
 keyword_col_index = header_row.index('Keyword')
-datasheet_col_index = header_row.index('Datasheet')
+datasheet_col_index = header_row.index('Google Sheet')
 
 # Adjust the range to 0-indexed
 start_range -= 1
 end_range -= 1
 
-print(f'>>> START update_datasheet.py <<<\n')
+print(f'>>> START fetch_serp_data.py <<<\n')
 # Process only rows within the defined range
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     keyword = row[keyword_col_index]
@@ -66,6 +66,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     }
     search = GoogleSearch(params)
     results = search.get_dict()
+    print(results)
 
     # Check if 'organic_results' is in the results
     if 'organic_results' in results:
@@ -107,18 +108,20 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
             # Update the 'Featured Snippet' column with the Featured Snippet
             serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
 
-        # Check if 'video_results' is in the results
-        if 'video_results' in results:
-            # Extract the URLs of the top 5 video results
-            video_urls = [video['link'] for video in results['video_results'][:5]]
+        # Check if 'inline_videos' is in the results
+        if 'inline_videos' in results:
+            # Extract the URLs of the top 10 video results
+            video_urls = [video['link'] for video in results['inline_videos'][:10]]
 
-            video_col_index = serp_header_row.index('Videos')
+            # Get the index of 'Videos' column
+            video_col_index = serp_header_row.index('Video')
 
-            # Write the URLs to the "Videos" column
-            serp_worksheet.update_cell(3, video_col_index, '\n'.join(video_urls))
+            # Write each URL to its own cell in the "Videos" column
+            for j, url in enumerate(video_urls, start=3):
+                serp_worksheet.update_cell(j, video_col_index + 1, url)
     else:
         print(f"No organic results found for keyword, '{keyword}'")
 
     print(f"Updated Google Sheet for keyword, '{keyword}'")
 
-print(f'\n>>> COMPLETE update_datasheet.py <<<')
+print(f'\n>>> COMPLETE fetch_serp_data.py <<<')

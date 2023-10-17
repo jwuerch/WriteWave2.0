@@ -34,7 +34,7 @@ all_values = sheet.get_all_values()
 # Get the index of 'Keyword' and 'Datasheet' columns
 header_row = all_values[1]
 keyword_col_index = header_row.index('Keyword')
-datasheet_col_index = header_row.index('Datasheet')
+datasheet_col_index = header_row.index('Google Sheet')
 
 # Adjust the range to 0-indexed
 start_range -= 1
@@ -67,6 +67,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     worksheet.update('C2', 'Meta Description')
     worksheet.update('D2', 'People Also Ask')
     worksheet.update('E2', 'Featured Snippet')
+    worksheet.update('F2', 'Video')
 
     # Format the second row
     fmt = cellFormat(
@@ -75,7 +76,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         horizontalAlignment='CENTER',
         verticalAlignment='MIDDLE'
     )
-    format_cell_range(worksheet, 'A2:E2', fmt)
+    format_cell_range(worksheet, 'A2:F2', fmt)
 
     # Set column widths with some padding
     requests = [
@@ -92,7 +93,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 },
                 "fields": "pixelSize"
             }
-        } for i, title in enumerate(['Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Featured Snippet'])
+        } for i, title in enumerate(['Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Featured Snippet', 'Video'])
     ]
     new_sheet.batch_update({"requests": requests})
 
