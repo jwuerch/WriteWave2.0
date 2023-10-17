@@ -60,16 +60,19 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Initialize a dictionary to store the rankings
     rankings = defaultdict(list)
 
+    # Initialize a set to store the unique keyword variations
+    keyword_variations = set()
+
     # Perform 5 searches and calculate the average ranking
     for _ in range(5):
-        # Use SerpAPI to get the top 10 search results for the keyword
+        # Use SerpAPI to get the top 100 search results for the keyword
         params = {
             "engine": "google",
             "q": keyword,
             "api_key": serpapi_api_key,
             "device": "desktop",
             "location": "United States",
-            "num": 10
+            "num": 100
         }
         search = GoogleSearch(params)
         results = search.get_dict()
@@ -77,13 +80,19 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         # Check if 'organic_results' is in the results
         if 'organic_results' in results:
             # Extract the URLs and their rankings
-            for rank, result in enumerate(results['organic_results'][:10], start=1):
-                url = result['link']
-                rankings[url].append(rank)
+            for rank, result in enumerate(results['organic_results'][:100], start=1):
+                # Add the 'snippet_highlighted_words' to the keyword variations set
+                if 'snippet_highlighted_words' in result:
+                    keyword_variations.update(result['snippet_highlighted_words'])
+
+                # Only process the other data for the top 10 results
+                if rank <= 10:
+                    url = result['link']
+                    rankings[url].append(rank)
 
         # Add a 30-second delay between each search
         print(f'Successfully completed a search.')
-        time.sleep(15)
+        time.sleep(12)
 
     # Calculate the average ranking for each URL
     avg_rankings = {url: sum(ranks) / len(ranks) for url, ranks in rankings.items()}
@@ -135,6 +144,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
         # Update the 'Featured Snippet' column with the Featured Snippet
         serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
+        time.sleep(31)
 
     # Check if 'inline_videos' is in the results
     if 'inline_videos' in results:
@@ -148,9 +158,20 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         for j, url in enumerate(video_urls, start=3):
             serp_worksheet.update_cell(j, video_col_index + 1, url)
     else:
-        print(f"No organic results found for keyword, '{keyword}'")
+        print(f"No organic video results found for keyword, '{keyword}'")
 
-    print(f"Fetched the following SERP data for the keyword, '{keyword}':\n-Ranking\n-Top 10 Search Results\n-SEO Titles\n-Meta Descriptions\n-People Also Ask Quetions\n-People Also Ask Answers\n-Videos\n-Featured Snippet")
+    # Get the index of 'Keyword Variations' column
+    keyword_variations_col_index = serp_header_row.index('Keyword Variations')
+
+    # Update the 'Keyword Variations' column with the unique keyword variations
+    for j, variation in enumerate(keyword_variations, start=3):
+        serp_worksheet.update_cell(j, keyword_variations_col_index + 1, variation.lower())
+
+        # Add a delay every 50 variations
+        if (j - 2) % 50 == 0:  # Subtract 2 from j because j starts from 3
+            time.sleep(31)
+
+    print(f"Fetched the following SERP data for the keyword, '{keyword}':\n-Ranking\n-Top 10 Search Results\n-SEO Titles\n-Meta Descriptions\n-People Also Ask Quetions\n-People Also Ask Answers\n-Videos\n-Featured Snippet\n-Keyword Variations")
     time.sleep(10)
 
 print(f'\n>>> COMPLETE fetch_serp_data.py <<<')
