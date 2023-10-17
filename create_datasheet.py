@@ -71,6 +71,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     worksheet.update('F2', 'Answer')
     worksheet.update('G2', 'Video')
     worksheet.update('H2', 'Featured Snippet')
+    worksheet.update('I2', 'Keyword Variations')
 
     # Format the second row
     fmt = cellFormat(
@@ -79,7 +80,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         horizontalAlignment='CENTER',
         verticalAlignment='MIDDLE'
     )
-    format_cell_range(worksheet, 'A2:H2', fmt)
+    format_cell_range(worksheet, 'A2:I2', fmt)
 
     # Set column widths with some padding
     requests = [
@@ -96,7 +97,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 },
                 "fields": "pixelSize"
             }
-        } for i, title in enumerate(['#', 'Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Answer', 'Video', 'Featured Snippet'])
+        } for i, title in enumerate(['#', 'Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Answer', 'Video', 'Featured Snippet', 'Keyword Variations'])
     ]
     new_sheet.batch_update({"requests": requests})
 
