@@ -57,7 +57,13 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     page_structure_sheet = datasheet.worksheet('Page Structure')
 
     # Define the factors
-    factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count', 'H6 Tag Count']
+    factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count',
+               'H6 Tag Count',
+               'p Tag Count', 'a Tag Count', 'a Internal Tag Count', 'a External Tag Count', 'img Tag Count',
+               'alt Tag Count',
+               'b Tag Count', 'strong Tag Count', 'i Tag Count', 'em Tag Count', 'u Tag Count', 'ol Tag Count',
+               'ol Item Count', 'ul Tag Count', 'ul Item Count', 'table Tag Count', 'form Tag Count',
+               'iframe Tag Count']
 
     # For each result column, scrape the web page and update the sheet
     for j in range(2, 12):  # Assuming there are 10 result columns starting from column 2
@@ -71,11 +77,22 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
             for k, factor in enumerate(factors, start=1):
                 if factor == 'Word Count':
                     count = len(soup.get_text().split())
+                elif factor == 'a Internal Tag Count':
+                    count = len([a for a in soup.find_all('a') if a.get('href') and a.get('href').startswith('/')])
+                elif factor == 'a External Tag Count':
+                    count = len([a for a in soup.find_all('a') if a.get('href') and a.get('href').startswith('http')])
+                elif factor == 'alt Tag Count':
+                    count = len([img for img in soup.find_all('img') if img.get('alt')])
+                elif factor in ['ol Item Count', 'ul Item Count']:
+                    tag = factor.split(' ')[0].lower()
+                    count = sum(len(ol.find_all('li')) for ol in soup.find_all(tag))
                 else:
                     tag = factor.split(' ')[0].lower()
                     count = len(soup.find_all(tag))
 
-                page_structure_sheet.update_cell(k + 3, j, count)
+                # Find the row with the factor title and output the count next to it
+                cell = page_structure_sheet.find(factor)
+                page_structure_sheet.update_cell(cell.row, j, count)
             print(f"Page structure updated for the following url: {url}")
             time.sleep(15)
 

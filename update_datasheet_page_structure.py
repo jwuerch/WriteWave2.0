@@ -85,6 +85,15 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Apply the formatting to all cells in the worksheet
     format_cell_range(page_structure_sheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
 
+    # Create a CellFormat object for bold text
+    bold_fmt = CellFormat(textFormat=TextFormat(bold=True))
+
+    # Apply bold formatting to row 3
+    format_cell_range(page_structure_sheet, f'A3:{gspread.utils.rowcol_to_a1(3, num_cols)}', bold_fmt)
+
+    # Double the width of column A
+    set_column_width(page_structure_sheet, 'A:A', 150)  # 100 is the standard width
+
     # Write the search results above the 'Result' heading in the 'Page Structure' sheet
     for j, search_result in enumerate(search_results, start=2):
         page_structure_sheet.update_cell(2, j, search_result)
