@@ -3,6 +3,7 @@ import os
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 from serpapi import GoogleSearch
+import time
 from collections import defaultdict
 
 # Load the .env file
@@ -145,6 +146,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     else:
         print(f"No organic results found for keyword, '{keyword}'")
 
-    print(f"Updated Google Sheet for keyword, '{keyword}'")
+    print(f"Fetched the following SERP data for the keyword, '{keyword}':\n-Ranking\n-Top 10 Search Results\n-SEO Titles\n-Meta Descriptions\n-People Also Ask Quetions\n-People Also Ask Answers\n-Videos\n-Featured Snippet")
+    time.sleep(10)
 
 print(f'\n>>> COMPLETE fetch_serp_data.py <<<')
