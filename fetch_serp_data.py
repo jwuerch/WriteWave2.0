@@ -3,6 +3,7 @@ import os
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
 from serpapi import GoogleSearch
+from collections import defaultdict
 
 # Load the .env file
 load_dotenv()
@@ -55,70 +56,89 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     serp_header_row = serp_worksheet.row_values(2)
     search_result_col_index = serp_header_row.index('Search Result')
 
-    # Use SerpAPI to get the top 10 search results for the keyword
-    params = {
-        "engine": "google",
-        "q": keyword,
-        "api_key": serpapi_api_key,
-        "device": "desktop",
-        "location": "United States",
-        "num": 10
-    }
-    search = GoogleSearch(params)
-    results = search.get_dict()
-    print(results)
+    # Initialize a dictionary to store the rankings
+    rankings = defaultdict(list)
 
-    # Check if 'organic_results' is in the results
-    if 'organic_results' in results:
-        # Extract the URLs, titles, and meta descriptions of the top 10 results
-        urls = [result['link'] for result in results['organic_results'][:10]]
-        titles = [result['title'] for result in results['organic_results'][:10]]
-        descriptions = [result.get('snippet', '') for result in results['organic_results'][:10]]
+    # Perform 5 searches and calculate the average ranking
+    for _ in range(5):
+        # Use SerpAPI to get the top 10 search results for the keyword
+        params = {
+            "engine": "google",
+            "q": keyword,
+            "api_key": serpapi_api_key,
+            "device": "desktop",
+            "location": "United States",
+            "num": 10
+        }
+        search = GoogleSearch(params)
+        results = search.get_dict()
 
-        # Get the index of 'SEO Title' and 'Meta Description' columns
-        seo_title_col_index = serp_header_row.index('SEO Title')
-        meta_description_col_index = serp_header_row.index('Meta Description')
+        # Check if 'organic_results' is in the results
+        if 'organic_results' in results:
+            # Extract the URLs and their rankings
+            for rank, result in enumerate(results['organic_results'][:10], start=1):
+                url = result['link']
+                rankings[url].append(rank)
 
-        # Update the 'Search Result', 'SEO Title', and 'Meta Description' columns with the URLs, titles, and descriptions
-        for j, (url, title, description) in enumerate(zip(urls, titles, descriptions), start=3):
-            serp_worksheet.update_cell(j, search_result_col_index + 1, url)
-            serp_worksheet.update_cell(j, seo_title_col_index + 1, title)
-            serp_worksheet.update_cell(j, meta_description_col_index + 1, description)
+    # Calculate the average ranking for each URL
+    avg_rankings = {url: sum(ranks) / len(ranks) for url, ranks in rankings.items()}
 
-        # Check if 'people_also_ask' is in the results
-        if 'related_questions' in results:
-            # Extract the People Also Ask questions
-            pas_questions = [pas['question'] for pas in results['related_questions']]
+    # Get the index of '#' column
+    rank_col_index = serp_header_row.index('#')
 
-            # Get the index of 'People Also Ask' column
-            people_also_ask_col_index = serp_header_row.index('People Also Ask')
+    # Update the '#' column with the average rankings
+    for j, (url, avg_rank) in enumerate(avg_rankings.items(), start=3):
+        serp_worksheet.update_cell(j, rank_col_index + 1, avg_rank)
 
-            # Update the 'People Also Ask' column with the questions
-            for j, question in enumerate(pas_questions, start=3):
-                serp_worksheet.update_cell(j, people_also_ask_col_index + 1, question)
+    # Extract the URLs, titles, and meta descriptions of the top 10 results
+    urls = [result['link'] for result in results['organic_results'][:10]]
+    titles = [result['title'] for result in results['organic_results'][:10]]
+    descriptions = [result.get('snippet', '') for result in results['organic_results'][:10]]
 
-        # Check if 'answer_box' is in the results
-        if 'answer_box' in results:
-            # Extract the answer from 'answer_box'
-            featured_snippet = results['answer_box']['snippet']
+    # Get the index of 'SEO Title' and 'Meta Description' columns
+    seo_title_col_index = serp_header_row.index('SEO Title')
+    meta_description_col_index = serp_header_row.index('Meta Description')
 
-            # Get the index of 'Featured Snippet' column
-            featured_snippet_col_index = serp_header_row.index('Featured Snippet')
+    # Update the 'Search Result', 'SEO Title', and 'Meta Description' columns with the URLs, titles, and descriptions
+    for j, (url, title, description) in enumerate(zip(urls, titles, descriptions), start=3):
+        serp_worksheet.update_cell(j, search_result_col_index + 1, url)
+        serp_worksheet.update_cell(j, seo_title_col_index + 1, title)
+        serp_worksheet.update_cell(j, meta_description_col_index + 1, description)
 
-            # Update the 'Featured Snippet' column with the Featured Snippet
-            serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
+    # Check if 'people_also_ask' is in the results
+    if 'related_questions' in results:
+        # Extract the People Also Ask questions
+        pas_questions = [pas['question'] for pas in results['related_questions']]
 
-        # Check if 'inline_videos' is in the results
-        if 'inline_videos' in results:
-            # Extract the URLs of the top 10 video results
-            video_urls = [video['link'] for video in results['inline_videos'][:10]]
+        # Get the index of 'People Also Ask' column
+        people_also_ask_col_index = serp_header_row.index('People Also Ask')
 
-            # Get the index of 'Videos' column
-            video_col_index = serp_header_row.index('Video')
+        # Update the 'People Also Ask' column with the questions
+        for j, question in enumerate(pas_questions, start=3):
+            serp_worksheet.update_cell(j, people_also_ask_col_index + 1, question)
 
-            # Write each URL to its own cell in the "Videos" column
-            for j, url in enumerate(video_urls, start=3):
-                serp_worksheet.update_cell(j, video_col_index + 1, url)
+    # Check if 'answer_box' is in the results
+    if 'answer_box' in results:
+        # Extract the answer from 'answer_box'
+        featured_snippet = results['answer_box']['snippet']
+
+        # Get the index of 'Featured Snippet' column
+        featured_snippet_col_index = serp_header_row.index('Featured Snippet')
+
+        # Update the 'Featured Snippet' column with the Featured Snippet
+        serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
+
+    # Check if 'inline_videos' is in the results
+    if 'inline_videos' in results:
+        # Extract the URLs of the top 10 video results
+        video_urls = [video['link'] for video in results['inline_videos'][:10]]
+
+        # Get the index of 'Videos' column
+        video_col_index = serp_header_row.index('Video')
+
+        # Write each URL to its own cell in the "Videos" column
+        for j, url in enumerate(video_urls, start=3):
+            serp_worksheet.update_cell(j, video_col_index + 1, url)
     else:
         print(f"No organic results found for keyword, '{keyword}'")
 
