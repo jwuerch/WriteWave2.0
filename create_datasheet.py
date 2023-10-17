@@ -56,16 +56,16 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Rename Sheet1 to 'SERP Overview'
     worksheet = new_sheet.get_worksheet(0)
-    worksheet.update_title('SERP Overview')
+    worksheet.update_title('SERP Data')
 
     # Create a new sheet titled 'Page Structure'
     new_sheet.add_worksheet(title='Page Structure', rows="100", cols="20")
 
-    # Update titles in the second row of 'SERP Overview'
+    # Update titles in the second row of 'SERP Data'
     worksheet.update('A2', 'Search Result')
     worksheet.update('B2', 'SEO Title')
     worksheet.update('C2', 'Meta Description')
-    worksheet.update('D2', 'PAS')
+    worksheet.update('D2', 'People Also Ask')
     worksheet.update('E2', 'Featured Snippet')
 
     # Format the second row
