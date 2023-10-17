@@ -3,6 +3,7 @@ import os
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
+from gspread_formatting import *
 
 # Load the .env file
 load_dotenv()
@@ -52,6 +53,65 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Create a new Google Sheet with the keyword as the name in the 'Data' folder
     new_sheet = client.create(keyword, folder_id=data_folder_id)
+
+    # Rename Sheet1 to 'SERP Overview'
+    worksheet = new_sheet.get_worksheet(0)
+    worksheet.update_title('SERP Overview')
+
+    # Create a new sheet titled 'Page Structure'
+    new_sheet.add_worksheet(title='Page Structure', rows="100", cols="20")
+
+    # Update titles in the second row of 'SERP Overview'
+    worksheet.update('A2', 'Search Result')
+    worksheet.update('B2', 'SEO Title')
+    worksheet.update('C2', 'Meta Description')
+    worksheet.update('D2', 'PAS')
+    worksheet.update('E2', 'Featured Snippet')
+
+    # Format the second row
+    fmt = cellFormat(
+        backgroundColor=color(0.05, 0.33, 0.58),
+        textFormat=textFormat(bold=True, fontSize=13, foregroundColor=color(1, 1, 1)),
+        horizontalAlignment='CENTER',
+        verticalAlignment='MIDDLE'
+    )
+    format_cell_range(worksheet, 'A2:E2', fmt)
+
+    # Set column widths with some padding
+    requests = [
+        {
+            "updateDimensionProperties": {
+                "range": {
+                    "sheetId": worksheet.id,
+                    "dimension": "COLUMNS",
+                    "startIndex": i,
+                    "endIndex": i + 1
+                },
+                "properties": {
+                    "pixelSize": len(title) * 9 + 40  # adjust the multiplier and padding as needed
+                },
+                "fields": "pixelSize"
+            }
+        } for i, title in enumerate(['Search Result', 'SEO Title', 'Meta Description', 'PAS', 'Featured Snippet'])
+    ]
+    new_sheet.batch_update({"requests": requests})
+
+    # Double the row height using Google Sheets API
+    requests = [{
+        "updateDimensionProperties": {
+            "range": {
+                "sheetId": worksheet.id,
+                "dimension": "ROWS",
+                "startIndex": 1,
+                "endIndex": 2
+            },
+            "properties": {
+                "pixelSize": 50
+            },
+            "fields": "pixelSize"
+        }
+    }]
+    new_sheet.batch_update({"requests": requests})
 
     # Get the URL of the new Google Sheet
     new_sheet_url = f"https://docs.google.com/spreadsheets/d/{new_sheet.id}"
