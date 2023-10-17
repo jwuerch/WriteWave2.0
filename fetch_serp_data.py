@@ -81,6 +81,10 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 url = result['link']
                 rankings[url].append(rank)
 
+        # Add a 30-second delay between each search
+        print(f'Successfully completed a search.')
+        time.sleep(15)
+
     # Calculate the average ranking for each URL
     avg_rankings = {url: sum(ranks) / len(ranks) for url, ranks in rankings.items()}
 
