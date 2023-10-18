@@ -63,6 +63,12 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Initialize a set to store the unique keyword variations
     keyword_variations = set()
 
+    # Initialize variables to store the results
+    pas_questions = []
+    pas_answers = []
+    featured_snippet = None
+    video_urls = []
+
     # Perform 5 searches and calculate the average ranking
     for _ in range(5):
         # Use SerpAPI to get the top 100 search results for the keyword
@@ -89,6 +95,22 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 if rank <= 10:
                     url = result['link']
                     rankings[url].append(rank)
+
+        # Check if 'people_also_ask' is in the results
+        if 'related_questions' in results and not pas_questions:
+            # Extract the People Also Ask questions and answers
+            pas_questions = [pas['question'] for pas in results['related_questions']]
+            pas_answers = [pas.get('snippet') for pas in results['related_questions']]  # Use get method here
+
+        # Check if 'answer_box' is in the results
+        if 'answer_box' in results and not featured_snippet:
+            # Extract the answer from 'answer_box'
+            featured_snippet = results['answer_box']['snippet']
+
+        # Check if 'inline_videos' is in the results
+        if 'inline_videos' in results and not video_urls:
+            # Extract the URLs of the top 10 video results
+            video_urls = [video['link'] for video in results['inline_videos'][:10]]
 
         # Add a 30-second delay between each search
         print(f'Successfully completed a search.')
