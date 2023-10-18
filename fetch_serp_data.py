@@ -92,7 +92,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
         # Add a 30-second delay between each search
         print(f'Successfully completed a search.')
-        time.sleep(12)
+        time.sleep(10)
 
     # Calculate the average ranking for each URL
     avg_rankings = {url: sum(ranks) / len(ranks) for url, ranks in rankings.items()}
@@ -144,7 +144,6 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
         # Update the 'Featured Snippet' column with the Featured Snippet
         serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
-        time.sleep(31)
 
     # Check if 'inline_videos' is in the results
     if 'inline_videos' in results:
@@ -162,16 +161,16 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Get the index of 'Keyword Variations' column
     keyword_variations_col_index = serp_header_row.index('Keyword Variations')
-
+    time.sleep(50)
     # Update the 'Keyword Variations' column with the unique keyword variations
     for j, variation in enumerate(keyword_variations, start=3):
         serp_worksheet.update_cell(j, keyword_variations_col_index + 1, variation.lower())
 
-        # Add a delay every 50 variations
-        if (j - 2) % 50 == 0:  # Subtract 2 from j because j starts from 3
-            time.sleep(31)
+        # Add a delay every 90 variations
+        if (j - 2) % 90 == 0:  # Subtract 2 from j because j starts from 3
+            time.sleep(61)
 
     print(f"Fetched the following SERP data for the keyword, '{keyword}':\n-Ranking\n-Top 10 Search Results\n-SEO Titles\n-Meta Descriptions\n-People Also Ask Quetions\n-People Also Ask Answers\n-Videos\n-Featured Snippet\n-Keyword Variations")
-    time.sleep(10)
+    time.sleep(5)
 
 print(f'\n>>> COMPLETE fetch_serp_data.py <<<')
