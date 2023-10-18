@@ -38,6 +38,11 @@ end_range -= 1
 
 print(f'>>> START create_sheet_keyword_variations.py <<<\n')
 # Process only rows within the defined range
+
+# Create a CellFormat object with text wrapping set to 'CLIP'
+fmt_clip = cellFormat(wrapStrategy='CLIP')
+fmt_bold = cellFormat(textFormat=textFormat(bold=True))
+
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     datasheet_link = row[datasheet_col_index]
 
@@ -54,8 +59,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     keyword_variations.update('C2', '# used')
 
     # Bold the text in cell C3
-    fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, 'C2', fmt)
+    format_cell_range(keyword_variations, 'C2', fmt_bold)
 
     # Define the data to be pasted
     data = [
@@ -73,12 +77,14 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         ['Page 1 Maximum']
     ]
 
-    # Paste the data starting from row 4
-    keyword_variations.update('A3', data)
+    # Batch update
+    cell_list = keyword_variations.range('A3:A{}'.format(len(data) + 3))
+    for cell, value in zip(cell_list, data):
+        cell.value = value[0]
+    keyword_variations.update_cells(cell_list)
 
     # Bold the text
-    fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, f'A3:A{len(data) + 3}', fmt)
+    format_cell_range(keyword_variations, f'A3:A{len(data) + 3}', fmt_bold)
 
     # Double the width of column A
     set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
@@ -88,13 +94,8 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     num_rows = keyword_variations.row_count
     num_cols = keyword_variations.col_count
 
-    # Create a CellFormat object with text wrapping set to 'CLIP'
-    fmt = cellFormat(
-        wrapStrategy='CLIP'
-    )
-
     # Apply the formatting to all cells in the worksheet
-    format_cell_range(keyword_variations, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+    format_cell_range(keyword_variations, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt_clip)
 
     print(f"Updated 'Keyword Variations' for row {i+1}")
 
