@@ -98,6 +98,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 cell = page_structure_sheet.find(factor)
                 page_structure_sheet.update_cell(cell.row, j, count)
             print(f"Page structure updated for the following url: {url}")
+
             time.sleep(15)
 
     print(f"Google Sheet Page Structure sheet updated for keyword, '{keyword}'")

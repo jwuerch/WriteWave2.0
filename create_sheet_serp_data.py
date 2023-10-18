@@ -40,7 +40,7 @@ datasheet_col_index = header_row.index('Google Sheet')
 start_range -= 1
 end_range -= 1
 
-print(f'>>> START create_datasheet.py <<<\n')
+print(f'>>> START create_sheet_serp_data.py <<<\n')
 # Process only rows within the defined range
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     keyword = row[keyword_col_index]
@@ -60,8 +60,8 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Create a new sheet titled 'Page Structure'
     new_sheet.add_worksheet(title='Page Structure', rows="1000", cols="30")
-    new_sheet.add_worksheet(title='Entities', rows="1000", cols="30")
     new_sheet.add_worksheet(title='Keyword Variations', rows="1000", cols="200")
+    new_sheet.add_worksheet(title='Entities', rows="1000", cols="30")
 
     # Update titles in the second row of 'SERP Data'
     worksheet.update('A2', '#')
@@ -137,4 +137,4 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     sheet.update_cell(i + 1, datasheet_col_index + 1, new_sheet_url)
     print(f"Google Sheet created for keyword, '{keyword}'")
 
-print(f'\n>>> COMPLETE create_datasheet.py <<<')
+print(f'\n>>> COMPLETE create_sheet_serp_data.py <<<')

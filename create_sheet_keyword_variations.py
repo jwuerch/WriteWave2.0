@@ -3,6 +3,7 @@ import os
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
+from gspread_formatting import *
 
 # Load the .env file
 load_dotenv()
@@ -35,7 +36,7 @@ datasheet_col_index = header_row.index('Google Sheet')
 start_range -= 1
 end_range -= 1
 
-print(f'>>> START update_keyword_variations.py <<<\n')
+print(f'>>> START create_sheet_keyword_variations.py <<<\n')
 # Process only rows within the defined range
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     datasheet_link = row[datasheet_col_index]
@@ -52,6 +53,33 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Write '# used' in cell C1
     keyword_variations.update('C1', '# used')
 
+    # Bold the text in cell C1
+    fmt = cellFormat(textFormat=textFormat(bold=True))
+    format_cell_range(keyword_variations, 'C1', fmt)
+
+    # Define the data to be pasted
+    data = [
+        ['Result 1'],
+        ['Result 2'],
+        ['Result 3'],
+        ['Result 4'],
+        ['Result 5'],
+        ['Result 6'],
+        ['Result 7'],
+        ['Result 8'],
+        ['Result 9'],
+        ['Result 10'],
+        ['Page 1 Average'],
+        ['Page 1 Maximum']
+    ]
+
+    # Paste the data starting from row 3 and bold the text
+    keyword_variations.update('A2', data)
+    format_cell_range(keyword_variations, f'A2:A{len(data)+2}', fmt)
+
+    # Double the width of column A
+    set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
+
     print(f"Updated 'Keyword Variations' for row {i+1}")
 
-print(f'\n>>> COMPLETE update_keyword_variations.py <<<')
+print(f'\n>>> COMPLETE create_sheet_keyword_variations.py <<<')

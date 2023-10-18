@@ -33,7 +33,7 @@ datasheet_col_index = header_row.index('Google Sheet')
 start_range -= 1
 end_range -= 1
 
-print(f'>>> START update_datasheet_page_structure.py <<<\n')
+print(f'>>> START create_sheet_page_structure.py <<<\n')
 # Process only rows within the defined range
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     keyword = row[keyword_col_index]
@@ -56,7 +56,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Define the values to be written
     values = ['Factor', 'Result 1', 'Result 2', 'Result 3', 'Result 4', 'Result 5', 'Result 6', 'Result 7', 'Result 8',
-              'Result 9', 'Result 10', 'Average']
+              'Result 9', 'Result 10', 'Page 1 Average', 'Page 1 Maximum']
 
     factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count',
                'H6 Tag Count',
@@ -97,4 +97,4 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     print(f"Google Sheet Page Structure sheet updated for keyword, '{keyword}'")
 
-print(f'\n>>> COMPLETE update_datasheet_page_structure.py <<<')
+print(f'\n>>> COMPLETE create_sheet_page_structure.py <<<')
