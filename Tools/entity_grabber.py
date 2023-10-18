@@ -8,15 +8,13 @@ load_dotenv()
 textrazor.api_key = os.getenv('TEXTRAZOR_API_KEY')
 
 client = textrazor.TextRazor(extractors=["entities", "topics"])
-response = client.analyze_url("https://www.guineapigtube.com/can-guinea-pigs-eat-lemons/")
+response = client.analyze_url("https://guineadad.com/blogs/news/guineadad-food-blog-can-guinea-pigs-eat-apples")
 
 # Create a dictionary to store entities and their details
 entity_dict = {}
 
 for entity in response.entities():
     # Print original details
-    print(entity.id, entity.relevance_score, entity.confidence_score, entity.freebase_types)
-
     # If entity is already in dictionary, increment count
     if entity.id in entity_dict:
         entity_dict[entity.id][2] += 1
