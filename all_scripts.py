@@ -18,4 +18,4 @@ scripts = ['create_sheet_serp_data.py',
 
 for script in scripts:
     subprocess.call(["python", script])
-    time.sleep(10)  # wait for 10 seconds
+    time.sleep(30)  # wait for 30 seconds

@@ -61,8 +61,8 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Create a new sheet titled 'Page Structure'
     new_sheet.add_worksheet(title='Page Structure', rows="1000", cols="30")
     new_sheet.add_worksheet(title='Keyword Variations', rows="1000", cols="200")
-    new_sheet.add_worksheet(title='Entities', rows="1000", cols="30")
-
+    new_sheet.add_worksheet(title='Entities', rows="1000", cols="500")
+    new_sheet.add_worksheet(title='Entity Grabber', rows="1000", cols="500")
     # Update titles in the second row of 'SERP Data'
     worksheet.update('A2', '#')
     worksheet.update('B2', 'Search Result')

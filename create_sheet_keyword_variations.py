@@ -51,11 +51,11 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     keyword_variations = datasheet.worksheet('Keyword Variations')
 
     # Write '# used' in cell C3
-    keyword_variations.update('C3', '# used')
+    keyword_variations.update('C2', '# used')
 
     # Bold the text in cell C3
     fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, 'C3', fmt)
+    format_cell_range(keyword_variations, 'C2', fmt)
 
     # Define the data to be pasted
     data = [
@@ -74,11 +74,11 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     ]
 
     # Paste the data starting from row 4
-    keyword_variations.update('A4', data)
+    keyword_variations.update('A3', data)
 
     # Bold the text
     fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, f'A4:A{len(data) + 3}', fmt)
+    format_cell_range(keyword_variations, f'A3:A{len(data) + 3}', fmt)
 
     # Double the width of column A
     set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
