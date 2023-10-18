@@ -51,12 +51,12 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     page_structure_sheet = datasheet.worksheet('Entities')
 
     # Define the values to be written
-    values = ['Entity', 'Freebase ID', 'Relevance', 'Confidence', 'Type', 'Wikidata ID', 'Wiki Link', 'Wiki Link Tag']
+    values = ['Website', 'Entity', 'Freebase ID', 'Relevance', 'Confidence', 'Type', 'Wikidata ID', 'Wiki Link', 'Wiki Link Tag']
 
 
     # Write the values starting from row 3
     for j, value in enumerate(values, start=1):
-        page_structure_sheet.update_cell(3, j, value)
+        page_structure_sheet.update_cell(2, j, value)
 
     # Create a CellFormat object with text wrapping set to 'CLIP'
     fmt = CellFormat(wrapStrategy='CLIP')
@@ -72,7 +72,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     bold_fmt = CellFormat(textFormat=TextFormat(bold=True))
 
     # Apply bold formatting to row 3
-    format_cell_range(page_structure_sheet, f'A3:{gspread.utils.rowcol_to_a1(3, num_cols)}', bold_fmt)
+    format_cell_range(page_structure_sheet, f'A2:{gspread.utils.rowcol_to_a1(3, num_cols)}', bold_fmt)
 
     # Double the width of column A
     set_column_width(page_structure_sheet, 'A:A', 150)  # 100 is the standard width
