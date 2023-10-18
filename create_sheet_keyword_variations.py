@@ -50,12 +50,12 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     datasheet = client.open_by_url(datasheet_link)
     keyword_variations = datasheet.worksheet('Keyword Variations')
 
-    # Write '# used' in cell C1
-    keyword_variations.update('C1', '# used')
+    # Write '# used' in cell C3
+    keyword_variations.update('C3', '# used')
 
-    # Bold the text in cell C1
+    # Bold the text in cell C3
     fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, 'C1', fmt)
+    format_cell_range(keyword_variations, 'C3', fmt)
 
     # Define the data to be pasted
     data = [
@@ -73,9 +73,12 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         ['Page 1 Maximum']
     ]
 
-    # Paste the data starting from row 3 and bold the text
-    keyword_variations.update('A2', data)
-    format_cell_range(keyword_variations, f'A2:A{len(data)+2}', fmt)
+    # Paste the data starting from row 4
+    keyword_variations.update('A4', data)
+
+    # Bold the text
+    fmt = cellFormat(textFormat=textFormat(bold=True))
+    format_cell_range(keyword_variations, f'A4:A{len(data) + 3}', fmt)
 
     # Double the width of column A
     set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
@@ -84,6 +87,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     # Get the total number of rows and columns in the worksheet
     num_rows = keyword_variations.row_count
     num_cols = keyword_variations.col_count
+
     # Create a CellFormat object with text wrapping set to 'CLIP'
     fmt = cellFormat(
         wrapStrategy='CLIP'

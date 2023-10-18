@@ -60,10 +60,10 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Paste the keyword variations and search results into the 'Keyword Variations' worksheet
     for j, variation in enumerate(keyword_variations, start=1):
-        keyword_variations_worksheet.update_cell(1, j + 3, variation)  # Start from column D (index 4)
+        keyword_variations_worksheet.update_cell(3, j + 3, variation)  # Start from column D (index 4)
 
     for j, result in enumerate(search_results, start=1):
-        keyword_variations_worksheet.update_cell(j + 1, 2, result)  # Start from row B2
+        keyword_variations_worksheet.update_cell(j + 3, 2, result)  # Start from row B2
 
     # Add a pause every 30 variations
     if j % 30 == 0:
