@@ -12,6 +12,7 @@ import time
 scripts = ['create_sheet_serp_data.py',
            'create_sheet_page_structure.py',
            'create_sheet_keyword_variations.py',
+           'create_sheet_entities.py',
            'fetch_serp_data.py',
            'copy_serp_data.py'
 ]

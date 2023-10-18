@@ -63,16 +63,14 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     new_sheet.add_worksheet(title='Keyword Variations', rows="1000", cols="200")
     new_sheet.add_worksheet(title='Entities', rows="1000", cols="500")
     new_sheet.add_worksheet(title='Entity Grabber', rows="1000", cols="500")
+
     # Update titles in the second row of 'SERP Data'
-    worksheet.update('A2', '#')
-    worksheet.update('B2', 'Search Result')
-    worksheet.update('C2', 'SEO Title')
-    worksheet.update('D2', 'Meta Description')
-    worksheet.update('E2', 'People Also Ask')
-    worksheet.update('F2', 'Answer')
-    worksheet.update('G2', 'Video')
-    worksheet.update('H2', 'Featured Snippet')
-    worksheet.update('I2', 'Keyword Variations')
+    titles = ['#', 'Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Answer', 'Video',
+              'Featured Snippet', 'Keyword Variations']
+    cell_list = worksheet.range('A2:I2')
+    for j, cell in enumerate(cell_list):  # Use a different variable here
+        cell.value = titles[j]
+    worksheet.update_cells(cell_list)
 
     # Format the second row
     fmt = cellFormat(
