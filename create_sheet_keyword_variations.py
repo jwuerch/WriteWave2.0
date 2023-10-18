@@ -79,6 +79,18 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Double the width of column A
     set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
+    set_column_width(keyword_variations, 'B:B', 400) # 100 is the standard width
+
+    # Get the total number of rows and columns in the worksheet
+    num_rows = keyword_variations.row_count
+    num_cols = keyword_variations.col_count
+    # Create a CellFormat object with text wrapping set to 'CLIP'
+    fmt = cellFormat(
+        wrapStrategy='CLIP'
+    )
+
+    # Apply the formatting to all cells in the worksheet
+    format_cell_range(keyword_variations, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
 
     print(f"Updated 'Keyword Variations' for row {i+1}")
 
