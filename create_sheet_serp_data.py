@@ -64,11 +64,12 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     new_sheet.add_worksheet(title='Entities', rows="1000", cols="500")
     new_sheet.add_worksheet(title='Entity Grabber', rows="1000", cols="500")
 
-    # Update titles in the second row of 'SERP Data'
     titles = ['#', 'Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Answer', 'Video',
               'Featured Snippet', 'Keyword Variations']
+
+    # Update titles in the second row of 'SERP Data'
     cell_list = worksheet.range('A2:I2')
-    for j, cell in enumerate(cell_list):  # Use a different variable here
+    for j, cell in enumerate(cell_list):
         cell.value = titles[j]
     worksheet.update_cells(cell_list)
 
@@ -96,12 +97,11 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                 },
                 "fields": "pixelSize"
             }
-        } for i, title in enumerate(['#', 'Search Result', 'SEO Title', 'Meta Description', 'People Also Ask', 'Answer', 'Video', 'Featured Snippet', 'Keyword Variations'])
+        } for i, title in enumerate(titles)
     ]
-    new_sheet.batch_update({"requests": requests})
 
     # Double the row height using Google Sheets API
-    requests = [{
+    requests.append({
         "updateDimensionProperties": {
             "range": {
                 "sheetId": worksheet.id,
@@ -114,11 +114,10 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
             },
             "fields": "pixelSize"
         }
-    }]
+    })
+
+    # Batch update all requests
     new_sheet.batch_update({"requests": requests})
-    # Get the total number of rows and columns in the worksheet
-    num_rows = worksheet.row_count
-    num_cols = worksheet.col_count
 
     # Create a CellFormat object with text wrapping set to 'CLIP'
     fmt = cellFormat(
@@ -126,7 +125,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     )
 
     # Apply the formatting to all cells in the worksheet
-    format_cell_range(worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+    format_cell_range(worksheet, f'A1:{gspread.utils.rowcol_to_a1(worksheet.row_count, worksheet.col_count)}', fmt)
 
     # Get the URL of the new Google Sheet
     new_sheet_url = f"https://docs.google.com/spreadsheets/d/{new_sheet.id}"

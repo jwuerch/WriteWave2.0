@@ -68,32 +68,33 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
                'FAQs Count', 'TOC Count']
 
     # Write the factors starting from row 4
-    for j, factor in enumerate(factors, start=1):
-        page_structure_sheet.update_cell(j + 3, 1, factor)
+    factors_range = 'A4:A' + str(len(factors) + 3)
+    page_structure_sheet.update(factors_range, [[factor] for factor in factors])
 
     # Write the values starting from row 3
-    for j, value in enumerate(values, start=1):
-        page_structure_sheet.update_cell(3, j, value)
+    values_range = 'A3:' + gspread.utils.rowcol_to_a1(3, len(values))
+    page_structure_sheet.update(values_range, [values])
+
+    # Get the number of rows and columns in the worksheet
+    all_values = page_structure_sheet.get_all_values()
+    num_rows = len(all_values)
+    num_cols = len(all_values[0])
 
     # Create a CellFormat object with text wrapping set to 'CLIP'
     fmt = CellFormat(wrapStrategy='CLIP')
 
-    # Get the number of rows and columns in the worksheet
-    num_rows = len(page_structure_sheet.get_all_values())
-    num_cols = len(page_structure_sheet.get_all_values()[0])
-
-    # Apply the formatting to all cells in the worksheet
-    format_cell_range(page_structure_sheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
-
     # Create a CellFormat object for bold text
     bold_fmt = CellFormat(textFormat=TextFormat(bold=True))
 
-    # Apply bold formatting to row 3
-    format_cell_range(page_structure_sheet, f'A3:{gspread.utils.rowcol_to_a1(3, num_cols)}', bold_fmt)
+    # Apply the formatting to all cells in the worksheet and bold formatting to row 3
+    ranges_fmt = [
+        (f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt),
+        (f'A3:{gspread.utils.rowcol_to_a1(3, num_cols)}', bold_fmt)
+    ]
+    format_cell_ranges(page_structure_sheet, ranges_fmt)
 
     # Double the width of column A
     set_column_width(page_structure_sheet, 'A:A', 150)  # 100 is the standard width
-
 
     print(f"Google Sheet Page Structure sheet updated for keyword, '{keyword}'")
 
