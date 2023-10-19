@@ -4,6 +4,9 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 from sheet_creation.create_google_sheet import *
 from sheet_creation.create_worksheet_serp_data import *
+from sheet_creation.create_worksheet_entities import *
+from sheet_creation.create_worksheet_variations import *
+from sheet_creation.create_worksheet_page_structure import *
 
 # Load the .env file
 load_dotenv()
@@ -56,5 +59,18 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     keyword_sheet_url = create_google_sheet(client, keyword, data_folder_id, main_sheet, google_sheet_col_index, i)
 
     # Create 'SERP Data' worksheet from create_worksheet_serp_data.py
-    print(f"Creating SERP Data worksheet")
+    print(f"Creating SERP Data worksheet [create_worksheet_serp_data.py]")
     create_worksheet_serp_data(client, keyword_sheet_url)
+
+    # Create 'Entities' worksheet from create_worksheet_entities.py
+    print(f"Creating Entities worksheet [create_worksheet_entities.py")
+    create_worksheet_entities(client, keyword_sheet_url)
+
+    # Create 'Variations' worksheet from create_worksheet_variations.py
+    print(f"Creating Variations worksheet [create_worksheet_variations.py")
+    create_worksheet_variations(client, keyword_sheet_url)
+
+    # Create 'Page Structure' worksheet from create_worksheet_page_structure.py
+    print(f"Creating Page Structure worksheet [create_worksheet_page_structure.py")
+    create_worksheet_page_structure(client, keyword_sheet_url)
+
