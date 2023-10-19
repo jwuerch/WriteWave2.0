@@ -52,8 +52,11 @@ def create_worksheet_variations(client, keyword_sheet_url):
         wrapStrategy='CLIP'
     )
 
-    # Apply the formatting to all cells in the worksheet
-    format_cell_range(variations_worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+    # Apply the formatting only to the specific cell 'C2'
+    format_cell_range(variations_worksheet, 'C2:C2', fmt)
+
+    # Apply the formatting to the entire column 'A'
+    format_cell_range(variations_worksheet, 'A:A', fmt)
 
     # Expand the width of column A
     set_column_width(variations_worksheet, 'A:A', 150)  # 100 is the standard width

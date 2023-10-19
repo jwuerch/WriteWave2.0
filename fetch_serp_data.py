@@ -3,18 +3,24 @@ import time
 import random
 from collections import defaultdict
 
+
+def get_column_letter(n):
+    string = ""
+    while n > 0:
+        n, remainder = divmod(n - 1, 26)
+        string = chr(65 + remainder) + string
+    return string
+
+
 def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
 
     # Open the Google Sheet from the 'Datasheet' link
-    datasheet_id = keyword_sheet_url.split('/')[5]
-    datasheet = client.open_by_key(datasheet_id)
+    keyword_sheet_id = keyword_sheet_url.split('/')[5]
+    keyword_sheet = client.open_by_key(keyword_sheet_id)
 
     # Open the 'SERP Data' worksheet
-    serp_worksheet = datasheet.worksheet('SERP Data')
-
-    # Get the index of 'Search Result' column
-    serp_header_row = serp_worksheet.row_values(2)
-    search_result_col_index = serp_header_row.index('Search Result')
+    serp_data_worksheet = keyword_sheet.worksheet('SERP Data')
+    variations_worksheet = keyword_sheet.worksheet('Variations')
 
     # Initialize a dictionary to store the rankings and related questions
     rankings = defaultdict(list)
@@ -46,7 +52,7 @@ def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
                 # Check if 'snippet_highlighted_words' is in the result
                 if 'snippet_highlighted_words' in result:
                     # Add the keyword variations to the set
-                    keyword_variations.update(result['snippet_highlighted_words'])
+                    keyword_variations.update([variation.lower() for variation in result['snippet_highlighted_words']])
 
                 # print(f"Rank: {rank}, URL: {url}")  # Print to console
 
@@ -100,7 +106,6 @@ def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
     titles = [result['title'] for result in results['organic_results']]
     descriptions = [result.get('snippet', '') for result in results['organic_results']]
 
-
     updates.append({
         'range': f'C3:C{len(titles) + 2}',
         'values': [[title] for title in titles]
@@ -146,4 +151,19 @@ def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
     })
 
     # Update the worksheet with all the data at once
-    serp_worksheet.batch_update(updates)
+    serp_data_worksheet.batch_update(updates)
+
+    # Get all the keyword variations
+    keyword_variations = serp_data_worksheet.col_values(serp_data_worksheet.row_values(2).index('Keyword Variations') + 1)[2:]
+    print(keyword_variations)
+
+    # Prepare the data for the update
+    # This will create a list of lists where each inner list is a row
+    keyword_variations_data = [keyword_variations]
+    print(keyword_variations_data)
+    # Calculate the end column letter based on the number of keyword variations
+    end_column_letter = get_column_letter(len(keyword_variations) + 3)  # +3 because we start from column D (index 4)
+
+    # Update the cells in the 'Keyword Variations' worksheet starting from D2
+    variations_worksheet.update(f'D2:{end_column_letter}2', keyword_variations_data)
+
