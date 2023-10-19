@@ -73,9 +73,8 @@ def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
             featured_snippet = results['answer_box']['snippet']
 
         # Add a 30-second delay between each search
-        print(f'Successfully completed a search.')
         random_number = random.uniform(7, 12)
-        print(f"Waiting {random_number} seconds...")
+        print(f"Successfully completed a search. Waiting {random_number} seconds...")
         time.sleep(random_number)
 
     # Calculate the average ranking for each URL
