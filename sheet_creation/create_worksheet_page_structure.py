@@ -2,24 +2,25 @@ import gspread
 from gspread_formatting import *
 
 def create_worksheet_page_structure(client, keyword_sheet_url):
-    # Open the Google Sheet and get the 'Keyword Variations' worksheet
+    # Open the Google Sheet
     keyword_sheet = client.open_by_url(keyword_sheet_url)
 
-    # Create a new sheet titled 'Page Structure'
-    page_structure_worksheet = keyword_sheet.add_worksheet(title='Page Structure', rows="1000", cols="30")
+    # Check if 'Page Structure' worksheet exists and create if not
+    try:
+        page_structure_worksheet = keyword_sheet.worksheet('Page Structure')  # attempt to get the worksheet
+    except gspread.WorksheetNotFound:
+        # if worksheet does not exist, create a new one
+        page_structure_worksheet = keyword_sheet.add_worksheet(title='Page Structure', rows="1000", cols="30")
 
     # Define the values to be written
     values = ['Factor', 'Result 1', 'Result 2', 'Result 3', 'Result 4', 'Result 5', 'Result 6', 'Result 7', 'Result 8',
               'Result 9', 'Result 10', 'Page 1 Average', 'Page 1 Maximum']
 
     factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count',
-               'H6 Tag Count',
-               'p Tag Count', 'a Tag Count', 'a Internal Tag Count', 'a External Tag Count', 'img Tag Count',
-               'alt Tag Count',
-               'b Tag Count', 'strong Tag Count', 'i Tag Count', 'em Tag Count', 'u Tag Count', 'ol Tag Count',
-               'ol Item Count', 'ul Tag Count', 'ul Item Count', 'table Tag Count', 'form Tag Count',
-               'iframe Tag Count',
-               'FAQs Count', 'TOC Count']
+               'H6 Tag Count', 'p Tag Count', 'a Tag Count', 'a Internal Tag Count', 'a External Tag Count',
+               'img Tag Count', 'alt Tag Count', 'b Tag Count', 'strong Tag Count', 'i Tag Count', 'em Tag Count',
+               'u Tag Count', 'ol Tag Count', 'ol Item Count', 'ul Tag Count', 'ul Item Count', 'table Tag Count',
+               'form Tag Count', 'iframe Tag Count', 'FAQs Count', 'TOC Count']
 
     # Write the factors starting from row 4
     factors_range = 'A4:A' + str(len(factors) + 3)

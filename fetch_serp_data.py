@@ -1,61 +1,18 @@
-import gspread
-import os
-from google.oauth2.service_account import Credentials
-from dotenv import load_dotenv
 from serpapi import GoogleSearch
 import time
 from collections import defaultdict
+import random
+import time
 
-# Load the .env file
-load_dotenv()
 
-credentials = os.getenv('CREDENTIALS')
-start_range = int(os.getenv('START_RANGE'))
-end_range = int(os.getenv('END_RANGE'))
-serpapi_api_key = os.getenv('SERPAPI_API_KEY')
-
-# Use creds to create a client to interact with the Google Drive API
-scope = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/drive']
-creds = Credentials.from_service_account_file(credentials, scopes=scope)
-client = gspread.authorize(creds)
-
-# Find a workbook by name and open the first sheet
-sheet = client.open("WriteWave2.0").sheet1
-
-# Extract all the values
-all_values = sheet.get_all_values()
-
-# Get the index of 'Keyword' and 'Datasheet' columns
-header_row = all_values[1]
-keyword_col_index = header_row.index('Keyword')
-datasheet_col_index = header_row.index('Google Sheet')
-
-# Adjust the range to 0-indexed
-start_range -= 1
-end_range -= 1
-
-print(f'>>> START fetch_serp_data.py <<<\n')
-# Process only rows within the defined range
-for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
-    keyword = row[keyword_col_index]
-    datasheet_link = row[datasheet_col_index]
-
-    # Check if the 'Datasheet' cell is empty
-    if not datasheet_link:
-        print(f"No Google Sheet defined for keyword, '{keyword}'")
-        continue
+def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
 
     # Open the Google Sheet from the 'Datasheet' link
-    datasheet_id = datasheet_link.split('/')[5]
+    datasheet_id = keyword_sheet_url.split('/')[5]
     datasheet = client.open_by_key(datasheet_id)
 
     # Open the 'SERP Data' worksheet
     serp_worksheet = datasheet.worksheet('SERP Data')
-
-    # Get the index of 'Search Result' column
-    serp_header_row = serp_worksheet.row_values(2)
-    search_result_col_index = serp_header_row.index('Search Result')
 
     # Initialize a dictionary to store the rankings
     rankings = defaultdict(list)
@@ -114,85 +71,68 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
         # Add a 30-second delay between each search
         print(f'Successfully completed a search.')
-        time.sleep(10)
+
+        # Generate a random number between 5 and 10
+        sleep_time = random.uniform(5, 7)
+        time.sleep(sleep_time)
 
     # Calculate the average ranking for each URL
     avg_rankings = {url: sum(ranks) / len(ranks) for url, ranks in rankings.items()}
 
-    # Get the index of '#' column
-    rank_col_index = serp_header_row.index('#')
+    # Prepare data for batch update
+    updates = []
 
-    # Update the '#' column with the average rankings
-    for j, (url, avg_rank) in enumerate(avg_rankings.items(), start=3):
-        serp_worksheet.update_cell(j, rank_col_index + 1, avg_rank)
+    updates.append({
+        'range': f'A3:A{len(avg_rankings)+2}',
+        'values': [[avg_rank] for avg_rank in avg_rankings.values()]
+    })
 
     # Extract the URLs, titles, and meta descriptions of the top 10 results
     urls = [result['link'] for result in results['organic_results'][:10]]
     titles = [result['title'] for result in results['organic_results'][:10]]
     descriptions = [result.get('snippet', '') for result in results['organic_results'][:10]]
 
-    # Get the index of 'SEO Title' and 'Meta Description' columns
-    seo_title_col_index = serp_header_row.index('SEO Title')
-    meta_description_col_index = serp_header_row.index('Meta Description')
+    updates.append({
+        'range': f'B3:B{len(urls)+2}',
+        'values': [[url] for url in urls]
+    })
+    updates.append({
+        'range': f'C3:C{len(titles)+2}',
+        'values': [[title] for title in titles]
+    })
+    updates.append({
+        'range': f'D3:D{len(descriptions)+2}',
+        'values': [[description] for description in descriptions]
+    })
 
-    # Update the 'Search Result', 'SEO Title', and 'Meta Description' columns with the URLs, titles, and descriptions
-    for j, (url, title, description) in enumerate(zip(urls, titles, descriptions), start=3):
-        serp_worksheet.update_cell(j, search_result_col_index + 1, url)
-        serp_worksheet.update_cell(j, seo_title_col_index + 1, title)
-        serp_worksheet.update_cell(j, meta_description_col_index + 1, description)
-
-    # Check if 'people_also_ask' is in the results
     if 'related_questions' in results:
-        # Extract the People Also Ask questions and answers
-        pas_questions = [pas['question'] for pas in results['related_questions']]
-        pas_answers = [pas.get('snippet') for pas in results['related_questions']]  # Use get method here
+        updates.append({
+            'range': f'E3:E{len(pas_questions)+2}',
+            'values': [[question] for question in pas_questions]
+        })
+        updates.append({
+            'range': f'F3:F{len(pas_answers)+2}',
+            'values': [[answer] for answer in pas_answers]
+        })
 
-        # Get the index of 'People Also Ask' and 'Answer' columns
-        people_also_ask_col_index = serp_header_row.index('People Also Ask')
-        answer_col_index = serp_header_row.index('Answer')
-
-        # Update the 'People Also Ask' and 'Answer' columns with the questions and answers
-        for j, (question, answer) in enumerate(zip(pas_questions, pas_answers), start=3):
-            serp_worksheet.update_cell(j, people_also_ask_col_index + 1, question)
-            serp_worksheet.update_cell(j, answer_col_index + 1, answer)
-
-    # Check if 'answer_box' is in the results
     if 'answer_box' in results:
-        # Extract the answer from 'answer_box'
-        featured_snippet = results['answer_box']['snippet']
+        updates.append({
+            'range': 'H3:H4',
+            'values': [[featured_snippet]]
+        })
 
-        # Get the index of 'Featured Snippet' column
-        featured_snippet_col_index = serp_header_row.index('Featured Snippet')
-
-        # Update the 'Featured Snippet' column with the Featured Snippet
-        serp_worksheet.update_cell(3, featured_snippet_col_index + 1, featured_snippet)
-
-    # Check if 'inline_videos' is in the results
     if 'inline_videos' in results:
-        # Extract the URLs of the top 10 video results
-        video_urls = [video['link'] for video in results['inline_videos'][:10]]
-
-        # Get the index of 'Videos' column
-        video_col_index = serp_header_row.index('Video')
-
-        # Write each URL to its own cell in the "Videos" column
-        for j, url in enumerate(video_urls, start=3):
-            serp_worksheet.update_cell(j, video_col_index + 1, url)
+        updates.append({
+            'range': f'G3:G{len(video_urls)+2}',
+            'values': [[url] for url in video_urls]
+        })
     else:
         print(f"No organic video results found for keyword, '{keyword}'")
 
-    # Get the index of 'Keyword Variations' column
-    keyword_variations_col_index = serp_header_row.index('Keyword Variations')
-    time.sleep(50)
-    # Update the 'Keyword Variations' column with the unique keyword variations
-    for j, variation in enumerate(keyword_variations, start=3):
-        serp_worksheet.update_cell(j, keyword_variations_col_index + 1, variation.lower())
+    updates.append({
+        'range': f'I3:I{len(keyword_variations) + 2}',
+        'values': [[variation.lower()] for variation in keyword_variations]
+    })
 
-        # Add a delay every 90 variations
-        if (j - 2) % 90 == 0:  # Subtract 2 from j because j starts from 3
-            time.sleep(61)
-
-    print(f"Fetched the following SERP data for the keyword, '{keyword}':\n-Ranking\n-Top 10 Search Results\n-SEO Titles\n-Meta Descriptions\n-People Also Ask Quetions\n-People Also Ask Answers\n-Videos\n-Featured Snippet\n-Keyword Variations")
-    time.sleep(5)
-
-print(f'\n>>> COMPLETE fetch_serp_data.py <<<')
+    # Update the worksheet with all the data at once
+    serp_worksheet.batch_update(updates)

@@ -7,6 +7,7 @@ from sheet_creation.create_worksheet_serp_data import *
 from sheet_creation.create_worksheet_entities import *
 from sheet_creation.create_worksheet_variations import *
 from sheet_creation.create_worksheet_page_structure import *
+from fetch_serp_data import *
 
 # Load the .env file
 load_dotenv()
@@ -14,6 +15,7 @@ load_dotenv()
 credentials = os.getenv('CREDENTIALS')
 start_range = int(os.getenv('START_RANGE'))
 end_range = int(os.getenv('END_RANGE'))
+serpapi_api_key = os.getenv('SERPAPI_API_KEY')
 
 # Use creds to create a client to interact with the Google Drive API
 scope = ['https://spreadsheets.google.com/feeds',
@@ -47,30 +49,34 @@ end_range -= 1
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     keyword = row[keyword_col_index]
     keyword_sheet_link = row[google_sheet_col_index]
-    print(f"\n>>> START keyword, '{keyword}'")
+    print(f"\n>>> START keyword, '{keyword}'\n")
 
     # Check if the 'Datasheet' cell is empty
     if keyword_sheet_link:
-        print(f"Google Sheet already defined for keyword, '{keyword}'")
-        continue
+        print(f"Google Sheet already defined for keyword, '{keyword}' [create_google_sheet.py]")
+        keyword_sheet_url = keyword_sheet_link
+    else:
+        # Create new Google Sheet from create_google_sheet.py
+        print(f"Creating Google Sheet [create_google_sheet.py]")
+        keyword_sheet_url = create_google_sheet(client, keyword, data_folder_id, main_sheet, google_sheet_col_index, i)
 
-    # Create new Google Sheet from create_google_sheet.py
-    print(f"Creating Google Sheet [create_google_sheet.py]")
-    keyword_sheet_url = create_google_sheet(client, keyword, data_folder_id, main_sheet, google_sheet_col_index, i)
+        # Create 'SERP Data' worksheet from create_worksheet_serp_data.py
+        print(f"Creating SERP Data worksheet [create_worksheet_serp_data.py]")
+        create_worksheet_serp_data(client, keyword_sheet_url)
 
-    # Create 'SERP Data' worksheet from create_worksheet_serp_data.py
-    print(f"Creating SERP Data worksheet [create_worksheet_serp_data.py]")
-    create_worksheet_serp_data(client, keyword_sheet_url)
+        # Create 'Entities' worksheet from create_worksheet_entities.py
+        print(f"Creating Entities worksheet [create_worksheet_entities.py]")
+        create_worksheet_entities(client, keyword_sheet_url)
 
-    # Create 'Entities' worksheet from create_worksheet_entities.py
-    print(f"Creating Entities worksheet [create_worksheet_entities.py")
-    create_worksheet_entities(client, keyword_sheet_url)
+        # Create 'Variations' worksheet from create_worksheet_variations.py
+        print(f"Creating Variations worksheet [create_worksheet_variations.py]")
+        create_worksheet_variations(client, keyword_sheet_url)
 
-    # Create 'Variations' worksheet from create_worksheet_variations.py
-    print(f"Creating Variations worksheet [create_worksheet_variations.py")
-    create_worksheet_variations(client, keyword_sheet_url)
+        # Create 'Page Structure' worksheet from create_worksheet_page_structure.py
+        print(f"Creating Page Structure worksheet [create_worksheet_page_structure.py]")
+        create_worksheet_page_structure(client, keyword_sheet_url)
 
-    # Create 'Page Structure' worksheet from create_worksheet_page_structure.py
-    print(f"Creating Page Structure worksheet [create_worksheet_page_structure.py")
-    create_worksheet_page_structure(client, keyword_sheet_url)
+    # Fetch SERP data
+    print(f"Fetching SERP data [fetch_serp_data.py]")
+    fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key)
 

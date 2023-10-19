@@ -1,11 +1,15 @@
 import gspread
 from gspread_formatting import *
 def create_worksheet_variations(client, keyword_sheet_url):
-    # Open the Google Sheet and get the 'Keyword Variations' worksheet
+    # Open the Google Sheet
     keyword_sheet = client.open_by_url(keyword_sheet_url)
 
-    # Create a new sheet titled 'Page Structure'
-    variations_worksheet = keyword_sheet.add_worksheet(title='Variations', rows="1000", cols="30")
+    # Check if 'Variations' worksheet exists and create if not
+    try:
+        variations_worksheet = keyword_sheet.worksheet('Variations')  # attempt to get the worksheet
+    except gspread.WorksheetNotFound:
+        # if worksheet does not exist, create a new one
+        variations_worksheet = keyword_sheet.add_worksheet(title='Variations', rows="1000", cols="30")
 
     # Define the data to be pasted
     data = [
