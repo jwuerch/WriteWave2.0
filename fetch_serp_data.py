@@ -12,11 +12,7 @@ def get_column_letter(n):
     return string
 
 
-def fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key):
-
-    # Open the Google Sheet from the 'Datasheet' link
-    keyword_sheet_id = keyword_sheet_url.split('/')[5]
-    keyword_sheet = client.open_by_key(keyword_sheet_id)
+def fetch_serp_data(keyword_sheet, keyword, serpapi_api_key):
 
     # Open the 'SERP Data' worksheet
     serp_data_worksheet = keyword_sheet.worksheet('SERP Data')

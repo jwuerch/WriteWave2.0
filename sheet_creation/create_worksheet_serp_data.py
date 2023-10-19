@@ -1,8 +1,6 @@
 import gspread
 from gspread_formatting import *
-def create_worksheet_serp_data(client, keyword_sheet_url):
-    # Open the Google Sheet and get the 'Keyword Variations' worksheet
-    keyword_sheet = client.open_by_url(keyword_sheet_url)
+def create_worksheet_serp_data(keyword_sheet):
 
     # Rename Sheet1 to 'SERP Data'
     worksheet = keyword_sheet.get_worksheet(0)

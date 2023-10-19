@@ -33,7 +33,6 @@ datasheet_col_index = header_row.index('Google Sheet')
 start_range -= 1
 end_range -= 1
 
-
 def get_column_letter(n):
     string = ""
     while n > 0:
@@ -41,22 +40,10 @@ def get_column_letter(n):
         string = chr(65 + remainder) + string
     return string
 
-print(f'>>> START find_entities.py <<<\n')
-# Process only rows within the defined range
-for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
-    keyword = row[keyword_col_index]
-    datasheet_link = row[datasheet_col_index]
-
-    # Check if the 'Datasheet' cell is empty
-    if not datasheet_link:
-        print(f"No Google Sheet defined for keyword, '{keyword}'")
-        continue
-
-    # Open the Google Sheet by URL
-    datasheet = client.open_by_url(datasheet_link)
+def find_entities(keyword_sheet, textrazor_api_key):
 
     # Select the 'SERP Data' worksheet
-    serp_data_sheet = datasheet.worksheet('SERP Data')
+    serp_data_sheet = keyword_sheet.worksheet('SERP Data')
 
     # Get the top 10 URLs from the 'Search Result' column
     search_result_col = serp_data_sheet.find('Search Result').col
@@ -81,7 +68,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     print(len(entities_dict))
 
     # Select the 'Entities' worksheet
-    entities_sheet = datasheet.worksheet('Entities')
+    entities_sheet = keyword_sheet.worksheet('Entities')
 
     # Append URLs to 'Entities' worksheet starting from B3
     for i, url in enumerate(urls, start=3):
@@ -100,6 +87,3 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Update the cells in the 'Entities' worksheet starting from D2
     entities_sheet.update(f'D2:{end_column_letter}2', data)
-
-
-print(f'\n>>> COMPLETE find_entities.py <<<')

@@ -1,8 +1,6 @@
 import gspread
 from gspread_formatting import *
-def create_worksheet_variations(client, keyword_sheet_url):
-    # Open the Google Sheet
-    keyword_sheet = client.open_by_url(keyword_sheet_url)
+def create_worksheet_variations(keyword_sheet):
 
     # Check if 'Variations' worksheet exists and create if not
     try:
@@ -46,17 +44,23 @@ def create_worksheet_variations(client, keyword_sheet_url):
     num_rows = variations_worksheet.row_count
     num_cols = variations_worksheet.col_count
 
-    # Create a CellFormat object with bold text and text wrapping set to 'CLIP'
-    fmt = cellFormat(
-        textFormat=textFormat(bold=True),
+    clip_format = cellFormat(
         wrapStrategy='CLIP'
     )
 
+    # Apply the clip formatting to all cells in the worksheet
+    format_cell_range(variations_worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', clip_format)
+
+    # Create a CellFormat object with bold text and text wrapping set to 'CLIP'
+    bold_fmt = cellFormat(
+        textFormat=textFormat(bold=True),
+    )
+
     # Apply the formatting only to the specific cell 'C2'
-    format_cell_range(variations_worksheet, 'C2:C2', fmt)
+    format_cell_range(variations_worksheet, 'C2:C2', bold_fmt)
 
     # Apply the formatting to the entire column 'A'
-    format_cell_range(variations_worksheet, 'A:A', fmt)
+    format_cell_range(variations_worksheet, 'A:A', bold_fmt)
 
     # Expand the width of column A
     set_column_width(variations_worksheet, 'A:A', 150)  # 100 is the standard width

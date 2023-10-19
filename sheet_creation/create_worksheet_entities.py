@@ -1,8 +1,6 @@
 import gspread
 from gspread_formatting import *
-def create_worksheet_entities(client, keyword_sheet_url):
-    # Open the Google Sheet
-    keyword_sheet = client.open_by_url(keyword_sheet_url)
+def create_worksheet_entities(keyword_sheet):
 
     # Check if 'Entities' worksheet exists and create if not
     try:
@@ -65,13 +63,23 @@ def create_worksheet_entities(client, keyword_sheet_url):
     num_cols = entities_worksheet.col_count
 
     # Create a CellFormat object with bold text and text wrapping set to 'CLIP'
-    fmt = cellFormat(
-        textFormat=textFormat(bold=True),
+    clip_format = cellFormat(
         wrapStrategy='CLIP'
     )
 
-    # Apply the formatting to all cells in the worksheet
-    format_cell_range(entities_worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+    # Apply the clip formatting to all cells in the worksheet
+    format_cell_range(entities_worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', clip_format)
+
+    # Create a CellFormat object with bold text
+    bold_fmt = cellFormat(
+        textFormat=textFormat(bold=True),
+    )
+
+    # Apply the bold formatting to column A
+    format_cell_range(entities_worksheet, 'A:A', bold_fmt)
+
+    # Apply the bold formatting to cell C2
+    format_cell_range(entities_worksheet, 'C2', bold_fmt)
 
     # Expand the width of column A
     set_column_width(entities_worksheet, 'A:A', 150)  # 100 is the standard width

@@ -1,9 +1,7 @@
 import gspread
 from gspread_formatting import *
 
-def create_worksheet_page_structure(client, keyword_sheet_url):
-    # Open the Google Sheet
-    keyword_sheet = client.open_by_url(keyword_sheet_url)
+def create_worksheet_page_structure(keyword_sheet):
 
     # Check if 'Page Structure' worksheet exists and create if not
     try:

@@ -8,6 +8,7 @@ from sheet_creation.create_worksheet_entities import *
 from sheet_creation.create_worksheet_variations import *
 from sheet_creation.create_worksheet_page_structure import *
 from fetch_serp_data import *
+from find_entities import *
 
 # Load the .env file
 load_dotenv()
@@ -16,6 +17,7 @@ credentials = os.getenv('CREDENTIALS')
 start_range = int(os.getenv('START_RANGE'))
 end_range = int(os.getenv('END_RANGE'))
 serpapi_api_key = os.getenv('SERPAPI_API_KEY')
+textrazor_api_key = os.getenv('TEXTRAZOR_API_KEY')
 
 # Use creds to create a client to interact with the Google Drive API
 scope = ['https://spreadsheets.google.com/feeds',
@@ -55,28 +57,33 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
     if keyword_sheet_link:
         print(f"Google Sheet already defined for keyword, '{keyword}' [create_google_sheet.py]")
         keyword_sheet_url = keyword_sheet_link
+        keyword_sheet = client.open_by_url(keyword_sheet_url)
     else:
         # Create new Google Sheet from create_google_sheet.py
         print(f"Creating Google Sheet [create_google_sheet.py]")
         keyword_sheet_url = create_google_sheet(client, keyword, data_folder_id, main_sheet, google_sheet_col_index, i)
+        keyword_sheet = client.open_by_url(keyword_sheet_url)
 
         # Create 'SERP Data' worksheet from create_worksheet_serp_data.py
         print(f"Creating SERP Data worksheet [create_worksheet_serp_data.py]")
-        create_worksheet_serp_data(client, keyword_sheet_url)
+        create_worksheet_serp_data(keyword_sheet)
 
         # Create 'Entities' worksheet from create_worksheet_entities.py
         print(f"Creating Entities worksheet [create_worksheet_entities.py]")
-        create_worksheet_entities(client, keyword_sheet_url)
+        create_worksheet_entities(keyword_sheet)
 
         # Create 'Variations' worksheet from create_worksheet_variations.py
         print(f"Creating Variations worksheet [create_worksheet_variations.py]")
-        create_worksheet_variations(client, keyword_sheet_url)
+        create_worksheet_variations(keyword_sheet)
 
         # Create 'Page Structure' worksheet from create_worksheet_page_structure.py
         print(f"Creating Page Structure worksheet [create_worksheet_page_structure.py]")
-        create_worksheet_page_structure(client, keyword_sheet_url)
+        create_worksheet_page_structure(keyword_sheet)
 
     # Fetch SERP data
     print(f"Fetching SERP data [fetch_serp_data.py]")
-    fetch_serp_data(client, keyword_sheet_url, keyword, serpapi_api_key)
+    fetch_serp_data(keyword_sheet, keyword, serpapi_api_key)
 
+    # Find Entities
+    print(f"Scanning for entities [find_entities.py]")
+    find_entities(keyword_sheet, textrazor_api_key)
