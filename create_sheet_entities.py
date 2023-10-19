@@ -27,6 +27,8 @@ sheet = client.open("WriteWave2.0").sheet1
 
 # Extract all the values
 all_values = sheet.get_all_values()
+header_row = all_values[1]
+keyword_col_index = header_row.index('Keyword')
 
 # Get the index of 'Keyword' and 'Datasheet' columns
 header_row = all_values[1]
@@ -40,6 +42,7 @@ print(f'>>> START create_sheet_keyword_variations.py <<<\n')
 # Process only rows within the defined range
 for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range):
     datasheet_link = row[datasheet_col_index]
+    keyword = row[keyword_col_index]
 
     # Check if the 'Datasheet' cell is empty
     if not datasheet_link:
@@ -48,14 +51,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Open the Google Sheet and get the 'Keyword Variations' worksheet
     datasheet = client.open_by_url(datasheet_link)
-    keyword_variations = datasheet.worksheet('Entities')
-
-    # Write '# used' in cell C3
-    keyword_variations.update('C2', '# used')
-
-    # Bold the text in cell C3
-    fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, 'C2', fmt)
+    entities_worksheet = datasheet.worksheet('Entities')
 
     # Define the data to be pasted
     data = [
@@ -73,29 +69,39 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         ['Page 1 Maximum']
     ]
 
-    # Paste the data starting from row 4
-    keyword_variations.update('A3', data)
+    # Create a list of updates
+    updates = [
+        {
+            'range': 'C2',
+            'values': [['# used']]
+        },
+        {
+            'range': f'A3:A{len(data) + 3}',
+            'values': data
+        }
+    ]
 
-    # Bold the text
-    fmt = cellFormat(textFormat=textFormat(bold=True))
-    format_cell_range(keyword_variations, f'A3:A{len(data) + 3}', fmt)
-
-    # Double the width of column A
-    set_column_width(keyword_variations, 'A:A', 150)  # 100 is the standard width
-    set_column_width(keyword_variations, 'B:B', 400) # 100 is the standard width
+    # Apply all updates in a single batch
+    entities_worksheet.batch_update(updates)
 
     # Get the total number of rows and columns in the worksheet
-    num_rows = keyword_variations.row_count
-    num_cols = keyword_variations.col_count
+    num_rows = entities_worksheet.row_count
+    num_cols = entities_worksheet.col_count
 
-    # Create a CellFormat object with text wrapping set to 'CLIP'
+    # Create a CellFormat object with bold text and text wrapping set to 'CLIP'
     fmt = cellFormat(
+        textFormat=textFormat(bold=True),
         wrapStrategy='CLIP'
     )
 
     # Apply the formatting to all cells in the worksheet
-    format_cell_range(keyword_variations, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+    format_cell_range(entities_worksheet, f'A1:{gspread.utils.rowcol_to_a1(num_rows, num_cols)}', fmt)
+
+    # Expand the width of column A
+    set_column_width(entities_worksheet, 'A:A', 150)  # 100 is the standard width
 
     print(f"Updated 'Keyword Variations' for row {i+1}")
+
+    print(f"Create Entities worksheet for keyword, '{keyword}'")
 
 print(f'\n>>> COMPLETE create_sheet_keyword_variations.py <<<')
