@@ -1,37 +1,5 @@
 import gspread
-import os
 import textrazor
-from google.oauth2.service_account import Credentials
-from dotenv import load_dotenv
-
-# Load the .env file
-load_dotenv()
-
-credentials = os.getenv('CREDENTIALS')
-start_range = int(os.getenv('START_RANGE'))
-end_range = int(os.getenv('END_RANGE'))
-textrazor.api_key = os.getenv('TEXTRAZOR_API_KEY')
-
-# Use creds to create a client to interact with the Google Drive API
-scope = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/drive']
-creds = Credentials.from_service_account_file(credentials, scopes=scope)
-client = gspread.authorize(creds)
-
-# Find a workbook by name and open the first sheet
-sheet = client.open("WriteWave2.0").sheet1
-
-# Extract all the values
-all_values = sheet.get_all_values()
-
-# Get the index of 'Keyword' and 'Datasheet' columns
-header_row = all_values[1]
-keyword_col_index = header_row.index('Keyword')
-datasheet_col_index = header_row.index('Google Sheet')
-
-# Adjust the range to 0-indexed
-start_range -= 1
-end_range -= 1
 
 def get_column_letter(n):
     string = ""
@@ -41,6 +9,8 @@ def get_column_letter(n):
     return string
 
 def find_entities(keyword_sheet, textrazor_api_key):
+
+    textrazor.api_key = textrazor_api_key
 
     # Select the 'SERP Data' worksheet
     serp_data_sheet = keyword_sheet.worksheet('SERP Data')
@@ -64,8 +34,6 @@ def find_entities(keyword_sheet, textrazor_api_key):
 
         except textrazor.TextRazorAnalysisException as e:
             print(f"Failed to analyze URL '{url}': {e}")
-    print(entities_dict)
-    print(len(entities_dict))
 
     # Select the 'Entities' worksheet
     entities_sheet = keyword_sheet.worksheet('Entities')

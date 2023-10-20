@@ -21,6 +21,13 @@ def create_worksheet_entities(keyword_sheet):
         ['Result 8'],
         ['Result 9'],
         ['Result 10'],
+        ['Confidence Score'],
+        ['Relevance Score'],
+        ['Type'],
+        ['Freebase ID'],
+        ['Wikidata ID'],
+        ['WikiLink'],
+        ['WikiLink Tag'],
         ['Page 1 Average'],
         ['Page 1 Maximum']
     ]
