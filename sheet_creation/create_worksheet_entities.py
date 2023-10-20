@@ -23,6 +23,8 @@ def create_worksheet_entities(keyword_sheet):
         ['Result 10'],
         ['Page 1 Average'],
         ['Page 1 Maximum'],
+        ['FC Average'],
+        ['FC Maximum'],
         ['Relevance Score'],
         ['Confidence Score'],
         ['Type'],
