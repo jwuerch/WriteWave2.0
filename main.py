@@ -82,7 +82,7 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
 
     # Fetch SERP data
     print(f"Fetching SERP data [fetch_serp_data.py]")
-    fetch_serp_data(keyword_sheet, keyword, serpapi_api_key)
+    # fetch_serp_data(keyword_sheet, keyword, serpapi_api_key)
 
     # Find Entities
     print(f"Scanning for entities [find_entities.py]")

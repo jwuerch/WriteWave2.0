@@ -26,6 +26,7 @@ def find_entities(keyword_sheet, textrazor_api_key):
     entities_dict = {}  # To store unique entities with Wikipedia links
     confidence_scores_dict = {}  # To store confidence scores for each entity
     relevance_scores_dict = {}  # To store relevance scores for each entity
+    entity_counts_dict = {}  # To store entity counts for each URL
 
     for url in urls:
         # Add 'http://' prefix if not present
@@ -48,6 +49,14 @@ def find_entities(keyword_sheet, textrazor_api_key):
                         relevance_scores_dict[entity.id].append(entity.relevance_score)
                     else:
                         relevance_scores_dict[entity.id] = [entity.relevance_score]
+                    # Count the entity for the current URL
+                    if url in entity_counts_dict:
+                        if entity.id in entity_counts_dict[url]:
+                            entity_counts_dict[url][entity.id] += 1
+                        else:
+                            entity_counts_dict[url][entity.id] = 1
+                    else:
+                        entity_counts_dict[url] = {entity.id: 1}
 
         except textrazor.TextRazorAnalysisException as e:
             print(f"Failed to analyze URL '{url}': {e}")
@@ -55,7 +64,6 @@ def find_entities(keyword_sheet, textrazor_api_key):
     # Calculate average confidence and relevance scores for each entity
     average_confidence_scores = [sum(scores) / len(scores) for scores in confidence_scores_dict.values()]
     average_relevance_scores = [sum(scores) / len(scores) for scores in relevance_scores_dict.values()]
-
 
     # Select the 'Entities' worksheet
     entities_sheet = keyword_sheet.worksheet('Entities')
@@ -71,27 +79,35 @@ def find_entities(keyword_sheet, textrazor_api_key):
     entities_list = [entity.id for entity in entities_dict.values()]
     confidence_scores = [entity.confidence_score for entity in entities_dict.values()]
     relevance_scores = [entity.relevance_score for entity in entities_dict.values()]
-    types = [", ".join(entity.freebase_types) for entity in
-             entities_dict.values()]  # Join multiple types into a single string
+    types = [", ".join(entity.freebase_types) for entity in entities_dict.values()]  # Join multiple types into a single string
     freebase_ids = [entity.freebase_id for entity in entities_dict.values()]
     wikidata_ids = [entity.wikidata_id for entity in entities_dict.values()]
-    wikilinks = [entity.wikipedia_link for entity in
-                 entities_dict.values()]
-    wikilink_tags = [f'<a href="{wikilink}" title="{entity.id}" rel="nofollow">{entity.id}</a>'
-                     for entity, wikilink in zip(entities_dict.values(), wikilinks)]
+    wikilinks = [entity.wikipedia_link for entity in entities_dict.values()]
+    wikilink_tags = [f'<a href="{wikilink}" title="{entity.id}" rel="nofollow">{entity.id}</a>' for entity, wikilink in zip(entities_dict.values(), wikilinks)]
 
     # Calculate the end column letter based on the number of entities
     end_column_letter = get_column_letter(len(entities_list) + 3)  # +3 because we start from column D (index 4)
 
+    # Sort entities_list
+    entities_list.sort()
+    print(entities_list)
+
     # Prepare the updates
     updates.append({'range': f'D2:{end_column_letter}2', 'values': [clean_data_for_sheet(entities_list)]})
-    updates.append({'range': f'D13:{end_column_letter}13', 'values': [clean_data_for_sheet(average_relevance_scores)]})
-    updates.append({'range': f'D14:{end_column_letter}14', 'values': [clean_data_for_sheet(average_confidence_scores)]})
-    updates.append({'range': f'D15:{end_column_letter}15', 'values': [clean_data_for_sheet(types)]})
-    updates.append({'range': f'D16:{end_column_letter}16', 'values': [clean_data_for_sheet(freebase_ids)]})
-    updates.append({'range': f'D17:{end_column_letter}17', 'values': [clean_data_for_sheet(wikidata_ids)]})
-    updates.append({'range': f'D18:{end_column_letter}18', 'values': [clean_data_for_sheet(wikilinks)]})
-    updates.append({'range': f'D19:{end_column_letter}19', 'values': [clean_data_for_sheet(wikilink_tags)]})
+    updates.append({'range': f'D15:{end_column_letter}15', 'values': [clean_data_for_sheet(average_relevance_scores)]})
+    updates.append({'range': f'D16:{end_column_letter}16', 'values': [clean_data_for_sheet(average_confidence_scores)]})
+    updates.append({'range': f'D17:{end_column_letter}17', 'values': [clean_data_for_sheet(types)]})
+    updates.append({'range': f'D18:{end_column_letter}18', 'values': [clean_data_for_sheet(freebase_ids)]})
+    updates.append({'range': f'D19:{end_column_letter}19', 'values': [clean_data_for_sheet(wikidata_ids)]})
+    updates.append({'range': f'D20:{end_column_letter}20', 'values': [clean_data_for_sheet(wikilinks)]})
+    updates.append({'range': f'D21:{end_column_letter}21', 'values': [clean_data_for_sheet(wikilink_tags)]})
+
+    # Add entity counts to the updates
+    for i, url in enumerate(urls, start=3):
+        url_entity_counts = entity_counts_dict.get(url, {})
+        print(url_entity_counts)
+        entity_counts = [url_entity_counts.get(entity_id, 0) for entity_id in entities_list]
+        updates.append({'range': f'D{i}:{end_column_letter}{i}', 'values': [clean_data_for_sheet(entity_counts)]})
 
     # Apply the updates to the 'Entities' worksheet
     entities_sheet.batch_update(updates)
