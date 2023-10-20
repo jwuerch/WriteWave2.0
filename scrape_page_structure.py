@@ -29,7 +29,11 @@ def scrape_page_structure(keyword_sheet):
     page_structure_worksheet.batch_update(data_to_write)
 
     # Define the factors
-    factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count', 'H6 Tag Count']
+    factors = ['Word Count', 'H1 Tag Count', 'H2 Tag Count', 'H3 Tag Count', 'H4 Tag Count', 'H5 Tag Count',
+               'H6 Tag Count', 'p Tag Count', 'a Tag Count', 'a Internal Tag Count', 'a External Tag Count',
+               'img Tag Count', 'Non-empty alt Tag Count', 'b Tag Count', 'strong Tag Count', 'i Tag Count',
+               'em Tag Count', 'u Tag Count', 'ol Tag Count', 'ol Item Count', 'ul Tag Count',
+               'ul Item Count', 'table Tag Count', 'form Tag Count', 'iframe Tag Count', 'video Tag Count']
 
     # Clear the list for the next batch update
     data_to_write.clear()
@@ -43,6 +47,15 @@ def scrape_page_structure(keyword_sheet):
             for i, factor in enumerate(factors, start=4):  # Start from row 4
                 if factor == 'Word Count':
                     count = len(soup.get_text().split())
+                elif factor == 'a Internal Tag Count':
+                    count = len([a for a in soup.find_all('a') if a.get('href') and a.get('href').startswith('/')])
+                elif factor == 'a External Tag Count':
+                    count = len([a for a in soup.find_all('a') if a.get('href') and a.get('href').startswith('http')])
+                elif factor == 'Non-empty alt Tag Count':
+                    count = len([img for img in soup.find_all('img') if img.get('alt')])
+                elif factor in ['ol Item Count', 'ul Item Count']:
+                    tag = factor.split(' ')[0].lower()
+                    count = sum(len(ol.find_all('li')) for ol in soup.find_all(tag))
                 else:
                     tag = factor.split(' ')[0].lower()
                     count = len(soup.find_all(tag))
