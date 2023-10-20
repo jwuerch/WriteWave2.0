@@ -100,11 +100,18 @@ def find_entities(keyword_sheet, textrazor_api_key):
     wikilink_tags = [f'<a href="{wikilink}" title="{entity.id}" rel="nofollow">{entity.id}</a>' for entity, wikilink in zip(entities_dict.values(), wikilinks)]
 
     # Calculate average and maximum counts for each entity
-    average_counts = [total_counts_dict[entity_id] / len(urls) for entity_id in entities_list]
+    average_counts = [round(total_counts_dict[entity_id] / len(urls)) for entity_id in entities_list]
     max_counts = [max([entity_counts_dict.get(url, {}).get(entity_id, 0) for url in urls]) for entity_id in
                   entities_list]
+    average_counts_first_3_urls = [
+        round(sum([entity_counts_dict.get(url, {}).get(entity_id, 0) for url in urls[:3]]) / 3) for entity_id in
+        entities_list]
+    max_counts_first_3_urls = [max([entity_counts_dict.get(url, {}).get(entity_id, 0) for url in urls[:3]]) for
+                               entity_id in entities_list]
 
+    print(average_counts)
 
+    print(average_counts_first_3_urls)
 
     # Calculate the end column letter based on the number of entities
     end_column_letter = get_column_letter(len(entities_list) + 3)  # +3 because we start from column D (index 4)
@@ -122,6 +129,8 @@ def find_entities(keyword_sheet, textrazor_api_key):
     # Add average and maximum counts to the updates
     updates.append({'range': f'D13:{end_column_letter}13', 'values': [clean_data_for_sheet(average_counts)]})
     updates.append({'range': f'D14:{end_column_letter}14', 'values': [clean_data_for_sheet(max_counts)]})
+    updates.append({'range': f'D15:{end_column_letter}15', 'values': [clean_data_for_sheet(average_counts_first_3_urls)]})
+    updates.append({'range': f'D16:{end_column_letter}16', 'values': [clean_data_for_sheet(max_counts_first_3_urls)]})
 
     # Add entity counts to the updates
     for i, url in enumerate(urls, start=3):
