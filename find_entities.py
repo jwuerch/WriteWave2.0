@@ -85,8 +85,8 @@ def find_entities(keyword_sheet, textrazor_api_key):
 
     # Prepare the updates
     updates.append({'range': f'D2:{end_column_letter}2', 'values': [clean_data_for_sheet(entities_list)]})
-    updates.append({'range': f'D13:{end_column_letter}13', 'values': [clean_data_for_sheet(average_confidence_scores)]})
-    updates.append({'range': f'D14:{end_column_letter}14', 'values': [clean_data_for_sheet(average_relevance_scores)]})
+    updates.append({'range': f'D13:{end_column_letter}13', 'values': [clean_data_for_sheet(average_relevance_scores)]})
+    updates.append({'range': f'D14:{end_column_letter}14', 'values': [clean_data_for_sheet(average_confidence_scores)]})
     updates.append({'range': f'D15:{end_column_letter}15', 'values': [clean_data_for_sheet(types)]})
     updates.append({'range': f'D16:{end_column_letter}16', 'values': [clean_data_for_sheet(freebase_ids)]})
     updates.append({'range': f'D17:{end_column_letter}17', 'values': [clean_data_for_sheet(wikidata_ids)]})

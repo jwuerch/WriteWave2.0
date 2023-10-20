@@ -86,7 +86,7 @@ def fetch_serp_data(keyword_sheet, keyword, serpapi_api_key):
     updates = []
 
     updates.append({
-        'range': f'A3:A{len(avg_rankings)+2}',
+        'range': f'A3:A{len(avg_rankings) + 2}',
         'values': [[avg_rank] for avg_rank in avg_rankings.values()]
     })
 
@@ -150,14 +150,15 @@ def fetch_serp_data(keyword_sheet, keyword, serpapi_api_key):
     serp_data_worksheet.batch_update(updates)
 
     # Get all the keyword variations
-    keyword_variations = serp_data_worksheet.col_values(serp_data_worksheet.row_values(2).index('Keyword Variations') + 1)[2:]
+    keyword_variations = serp_data_worksheet.col_values(
+        serp_data_worksheet.row_values(2).index('Keyword Variations') + 1)[2:]
 
     # Prepare the data for the update. This will create a list of lists where each inner list is a row
-    keyword_variations_data = [keyword_variations]
+    keyword_variations_data = [[variation] for variation in keyword_variations]
 
     # Calculate the end column letter based on the number of keyword variations
     end_column_letter = get_column_letter(len(keyword_variations) + 3)  # +3 because we start from column D (index 4)
 
     # Update the cells in the 'Keyword Variations' worksheet starting from D2
-    variations_worksheet.update(f'D2:{end_column_letter}2', keyword_variations_data)
+    variations_worksheet.batch_update([{'range': f'D2:{end_column_letter}2', 'values': keyword_variations_data}])
 
