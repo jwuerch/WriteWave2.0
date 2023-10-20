@@ -82,11 +82,11 @@ def find_entities(keyword_sheet, textrazor_api_key):
 
 
     # Select the 'Entities' worksheet
-    entities_sheet = keyword_sheet.worksheet('Entities')
+    entities_worksheet = keyword_sheet.worksheet('Entities')
 
     # Append URLs to 'Entities' worksheet starting from B3
     for i, url in enumerate(urls, start=3):
-        entities_sheet.update_cell(i, 2, url)  # Column B is index 2
+        entities_worksheet.update_cell(i, 2, url)  # Column B is index 2
 
     # Initialize an empty list for updates
     updates = []
@@ -108,10 +108,6 @@ def find_entities(keyword_sheet, textrazor_api_key):
         entities_list]
     max_counts_first_3_urls = [max([entity_counts_dict.get(url, {}).get(entity_id, 0) for url in urls[:3]]) for
                                entity_id in entities_list]
-
-    print(average_counts)
-
-    print(average_counts_first_3_urls)
 
     # Calculate the end column letter based on the number of entities
     end_column_letter = get_column_letter(len(entities_list) + 3)  # +3 because we start from column D (index 4)
@@ -139,4 +135,4 @@ def find_entities(keyword_sheet, textrazor_api_key):
         updates.append({'range': f'D{i}:{end_column_letter}{i}', 'values': [clean_data_for_sheet(entity_counts)]})
 
     # Apply the updates to the 'Entities' worksheet
-    entities_sheet.batch_update(updates)
+    entities_worksheet.batch_update(updates)
