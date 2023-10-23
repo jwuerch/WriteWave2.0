@@ -8,7 +8,13 @@ load_dotenv()
 textrazor.api_key = os.getenv('TEXTRAZOR_API_KEY')
 
 client = textrazor.TextRazor(extractors=["entities", "topics"])
-response = client.analyze_url("https://guineadad.com/blogs/news/guineadad-food-blog-can-guinea-pigs-eat-apples")
+
+# Replace this with your text to analyze
+text_to_analyze = """
+What To Feed a Guinea Pig | RSPCA.
+"""
+
+response = client.analyze(text_to_analyze)
 
 # Create a dictionary to store entities and their details
 entity_dict = {}

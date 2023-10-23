@@ -7,6 +7,7 @@ from sheet_creation.create_worksheet_serp_data import *
 from sheet_creation.create_worksheet_entities import *
 from sheet_creation.create_worksheet_variations import *
 from sheet_creation.create_worksheet_page_structure import *
+from sheet_creation.create_worksheet_overview import *
 from scrape_page_structure import *
 from fetch_serp_data import *
 from find_entities import *
@@ -81,13 +82,17 @@ for i, row in enumerate(all_values[start_range:end_range + 1], start=start_range
         print(f"Creating Page Structure worksheet [create_worksheet_page_structure.py]")
         create_worksheet_page_structure(keyword_sheet)
 
+        #Create 'Overview' worksheet from create_worksheet_overview.py
+        print(f"Creating Overview worksheet [create_worksheet_overview.py]")
+        create_worksheet_overview(keyword_sheet)
+
     # Fetch SERP data
     print(f"Fetching SERP data [fetch_serp_data.py]")
-    # fetch_serp_data(keyword_sheet, keyword, serpapi_api_key)
+    fetch_serp_data(keyword_sheet, keyword, serpapi_api_key)
 
     # Find Entities
     print(f"Scanning for entities [find_entities.py]")
-    # find_entities(keyword_sheet, textrazor_api_key)
+    find_entities(keyword_sheet, textrazor_api_key)
 
     # Scrape URLs
     print(f"Scraping web pages for structure [scrape_page_structure.py")

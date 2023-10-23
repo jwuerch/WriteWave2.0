@@ -9,6 +9,12 @@ headers = {
     'Accept-Encoding': 'identity'
 }
 
+def has_faq(soup):
+    return int('faq' in soup.get_text().lower() or 'faqs' in soup.get_text().lower() or 'frequently asked questions' in soup.get_text().lower())
+
+def has_toc(soup):
+    return int(any(a['href'].startswith('#') and len(a['href']) > 1 for tag in soup.find_all(['ol', 'ul']) for a in tag.find_all('a', href=True)))
+
 def scrape_page_structure(keyword_sheet):
     serp_data_worksheet = keyword_sheet.worksheet('SERP Data')
     search_result_col = serp_data_worksheet.find('Search Result').col
@@ -33,7 +39,8 @@ def scrape_page_structure(keyword_sheet):
                'H6 Tag Count', 'p Tag Count', 'a Tag Count', 'a Internal Tag Count', 'a External Tag Count',
                'img Tag Count', 'Non-empty alt Tag Count', 'b Tag Count', 'strong Tag Count', 'i Tag Count',
                'em Tag Count', 'u Tag Count', 'ol Tag Count', 'ol Item Count', 'ul Tag Count',
-               'ul Item Count', 'table Tag Count', 'form Tag Count', 'iframe Tag Count', 'video Tag Count']
+               'ul Item Count', 'table Tag Count', 'form Tag Count', 'iframe Tag Count', 'video Tag Count',
+               'FAQ Count', 'TOC Count', 'SEO Title', 'Meta Description']
 
     # Clear the list for the next batch update
     data_to_write.clear()
@@ -56,6 +63,16 @@ def scrape_page_structure(keyword_sheet):
                 elif factor in ['ol Item Count', 'ul Item Count']:
                     tag = factor.split(' ')[0].lower()
                     count = sum(len(ol.find_all('li')) for ol in soup.find_all(tag))
+                elif factor == 'FAQ Count':
+                    count = has_faq(soup)
+                elif factor == 'TOC Count':
+                    count = has_toc(soup)
+                elif factor == 'SEO Title':
+                    title_tag = soup.find('title')
+                    count = title_tag.string.strip() if title_tag else ''
+                elif factor == 'Meta Description':
+                    meta_description_tag = soup.find('meta', attrs={'name': 'description'})
+                    count = meta_description_tag['content'].strip() if meta_description_tag else ''
                 else:
                     tag = factor.split(' ')[0].lower()
                     count = len(soup.find_all(tag))
